@@ -1,0 +1,76 @@
+Small notes section for my own, on how to use docker
+
+#Common sections of a Dockerfile
+
+FROM [image_name] --> get the image name (use static versions)
+RUN [commmands] --> run initial commands
+COPY . /src --> copy code from the directory to a specific folder in the container
+RUN [Commands] -> run additional commmands
+EXPOSE [port_number] --> Expose port number in the container, add metadata
+ENTRYPOINT [commmand separated by " "] --> tells what to run
+
+# Build from a Dockerfile
+docker build buildx -t [image_name]:[tag] [Directory]<-- Can be "."
+
+# run the image
+docker run [image_name]:[tag]
+
+## Volumes ## ---> For including volumes include the -v flag
+
+docker volume create [volume_name] --> Create a volume
+docker volume rm [volume_name] --> Deletes a volume
+
+
+## Compose ##
+
+Define multi-container systems. For example:
+    services:
+        container:
+            image:
+            ports:
+        container2:
+            image2:
+            ports:
+
+# Build images
+docker compose build
+
+# Start containers
+docker compose up
+
+# Stop containers
+docker compose stop
+
+# Build and Start
+docker compose up -d
+
+#Run a command in a container
+docker compose exec [container] bash
+
+To run docker compose as an instance
+docker compose -p [project_name] up -d
+
+Copy files from or to container
+docker compose cp [SRC_path] [container_ID]:[Dest_path]
+
+
+# We can setup limits and reservations for personalized workloads like
+
+limits :
+    cpus : '0.5'
+    memory: 150M
+
+# .ENVS --> Setup environment variables
+
+environment:
+    - FOO=BAR
+    - VAR = ${POSTGRES_VERSION}
+
+When using multiple containers we can use depend_on to wait for some of them:
+
+services:
+    app:
+    depends_on:
+        - db
+
+You can setup some restart policies - e.g. no, always, on-failure, unless-stopped
