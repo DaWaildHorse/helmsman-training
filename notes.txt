@@ -74,3 +74,60 @@ services:
         - db
 
 You can setup some restart policies - e.g. no, always, on-failure, unless-stopped
+
+# KUBERNETES #
+
+a context is a group of access parameters
+    - cluster
+    - user
+    - namespace --> Logical folder to group resources i.g. Dev,Test,Prod
+
+kube-context commands: --> use kubectx [context_name]
+
+# Get current context
+kubectl config current-context
+
+
+# Get all contexts
+kubectl config get-contexts
+
+
+# use some context
+kubectl config use-context
+
+## namespaces ##
+
+Objects in a namespace can access Objects in a different one 
+
+#list all namespaces 
+kubectl get ns
+
+#Set context to use to use a namespace 
+kubectl config set-context --current --namespace=[namespaceName]
+
+#Create a namespace 
+kubectl create ns [namespaceName]
+
+#List all pods in a namespace 
+kubectl get pods --all-namespaces
+
+## Node manager or Master node ##
+Living in the master node, etcd acts as the datastore for storing state.
+    - KV store
+    - Single source of truth
+
+kube-control-manager
+Controller of controls. It runs:
+    # Node Controller
+    # Replication Controller
+    # Endpoints Controller
+    # Token controller & Service controller
+
+
+## Worker node ##
+Physical or VMs that run one or more pods
+
+### Kube-proxy ###
+ 
+### Kubelet ### --> Manages the pods lifecycle, Ensures container described in the pod specs are healthy
+### Kube-proxy ### --> Manages network rules 
