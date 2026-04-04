@@ -202,3 +202,18 @@ kubectl describe pod [podname]           # show pod info
 kubectl exec -it [podname] -- sh   # Open a pod in interactive mode 
 docker compose cp [src] [container]:[dest]   # Copy files to/from container
 docker compose -p [project_name] up -d       # Run as a named project instance
+```
+## Init containers
+A way to make sequential start. If it fails kubelet restarts until it succeeds (Unless the policy is set to Never). First run over the initContainers, then the app containers
+
+```yaml
+spec:
+  containers:
+  initContainers:
+    -name:
+    image:
+    command:
+    -name:
+    image:
+    command:
+```
