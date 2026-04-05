@@ -217,3 +217,21 @@ spec:
     image:
     command:
 ```
+
+To check logs use the simple command 
+
+```bash
+kubectl logs [podname] -c [ContainerName]
+```
+
+
+## Networking
+
+In k8s:
+- All containers a pod can communicate with each other
+- All pods can communicate with each other
+- All nodes can communicate with all pods 
+- Pods are given ephemeral IPs
+- Services are given persistent IP (for critical workloads??)
+
+!! For communication between pods use a service!!  
