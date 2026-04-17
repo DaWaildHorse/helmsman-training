@@ -282,3 +282,50 @@ kubectl describe rs [rsName]          # Get info
 kubectl delete -f [definition.yaml]           # Delete a ReplicaSet
 kubectl delete rs [rsName] # delete but with name
 ```
+
+### Deployments
+
+Manage a single pod template. You can create a pod for each microservice. They are ReplicaSets in the background
+
+We would use a standard pod deployment like...
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app: nginx
+    type: front-end
+spec:
+  containers:
+    - name:
+      image:
+      ports:
+      - containerPort: 80
+```
+
+Then we would paste it into the following format
+
+```yaml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: rs-example
+spec:
+  replicas : <n_replicas>
+  selector:
+    matchLabels:
+      app: nginx
+      env: front-end
+  template:
+    <pod template>
+  ```
+
+
+```bash
+kubectl apply -f [definition.yaml]          # Create a ReplicaSet
+kubectl get rs        # List ReplicaSets
+kubectl describe rs [rsName]          # Get info
+kubectl delete -f [definition.yaml]           # Delete a ReplicaSet
+kubectl delete rs [rsName] # delete but with name
+```
