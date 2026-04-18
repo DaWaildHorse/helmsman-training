@@ -361,3 +361,11 @@ spec:
         - "100000"
   ```
 !!! the tolarations, are like exceptions, in this case is to not put one in the master node 
+
+```bash
+kubectl apply -f [definition.yaml]          # Create a ReplicaSet
+kubectl get ds        # List DaemonSet
+kubectl describe ds [rsName]          # Get info
+kubectl delete -f [definition.yaml]           # Delete a DaemonSet
+kubectl delete ds [rsName] # delete but with name
+```
