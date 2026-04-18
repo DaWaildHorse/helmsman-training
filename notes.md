@@ -329,3 +329,35 @@ kubectl describe rs [rsName]          # Get info
 kubectl delete -f [definition.yaml]           # Delete a ReplicaSet
 kubectl delete rs [rsName] # delete but with name
 ```
+
+### DaemonSet
+
+Ensures all nodes or subset of nodes run an instance of a pod. This means that as nodes are added to the cluster pods are run into them automatically. 
+
+For example we would do:
+
+```yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: daemonset-example
+spec:
+  selector:
+    matchlabels:
+      app: daemonset-example
+  template:
+    metadata: 
+      labels:
+        app: daemonset-example
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      containers:
+      - name: busybox
+        image: busybox
+        args:
+        - "sleep"
+        - "100000"
+  ```
+!!! the tolarations, are like exceptions, in this case is to not put one in the master node 
