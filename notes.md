@@ -285,7 +285,16 @@ kubectl delete rs [rsName] # delete but with name
 
 ### Deployments
 
-Manage a single pod template. You can create a pod for each microservice. They are ReplicaSets in the background
+Manage a single pod template. You can create a pod for each microservice. They are ReplicaSets in the background.
+
+The deployment updates and rollbacks, while the ReplicaSets provide scalability.
+
+There are some important parts of a deployment that ares important like:
+- Replicas -> Number of pod instances
+- revisionHistoryLimit -> Number of previous iterations to keep
+- strategy 
+  - RollingUpdate -> Cycle through updating pods
+  - Recreate -> All existing pods are killed before new ones are created 
 
 We would use a standard pod deployment like...
 ```yaml
@@ -308,15 +317,21 @@ Then we would paste it into the following format
 
 ```yaml
 apiVersion: apps/v1
-kind: ReplicaSet
+kind: Deployment
 metadata:
   name: rs-example
 spec:
   replicas : <n_replicas>
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: nginx
       env: front-end
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
   template:
     <pod template>
   ```
@@ -324,8 +339,8 @@ spec:
 
 ```bash
 kubectl apply -f [definition.yaml]          # Create a ReplicaSet
-kubectl get rs        # List ReplicaSets
-kubectl describe rs [rsName]          # Get info
+kubectl get deploy        # List Deployments
+kubectl describe deploy [deployName]          # Get info
 kubectl delete -f [definition.yaml]           # Delete a ReplicaSet
-kubectl delete rs [rsName] # delete but with name
+kubectl delete deploy [deploy¿¿Name] # delete but with name
 ```
