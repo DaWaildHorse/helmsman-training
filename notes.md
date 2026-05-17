@@ -236,6 +236,7 @@ In k8s:
 
 !! For communication between pods use a service!!  
 
+## Workloads
 ### ReplicaSets
 
 Primary method to provide self-healing capabilities.Always ensure desired number of pods are running.Though, do not use them!! use Deployments.
@@ -384,3 +385,167 @@ kubectl describe ds [rsName]          # Get info
 kubectl delete -f [definition.yaml]           # Delete a DaemonSet
 kubectl delete ds [rsName] # delete but with name
 ```
+
+### StatefulSet
+
+Used for pods that need to mantain state, it mantains a  sticky identity for its pods. This means that the pod name persists
+
+Creates them from 0 to X and deletes them from X to 0
+
+It is important to mentions we need a needless service. For example we would do:
+
+
+
+```yaml
+apiVersion: apps/v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  ports:
+  - name: mysql
+    port: 3306
+  clusterIP: None --> This makes it headless
+  selector:
+    app: mysql
+  ```
+
+The we need to reference the same name via serviceName:
+
+
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+  serviceName: mysql
+  replicas: 5
+  selector:
+    matchlabels:
+      run: nginx-sts-demo
+  template:
+    metadata: 
+      labels:
+        run: nginx-sts-demo
+    spec:
+      containers:
+      - name: busybox
+        image: busybox
+        args:
+        - "sleep"
+        - "100000"
+volumeClaimTemplates:
+- metadata:
+    name: data
+  spec:
+    storageClassName: default
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 1Gi
+  ```
+```bash
+kubectl apply -f [definition.yaml]          # Create a StatefulSet
+kubectl get sts        # List statefulSet
+kubectl describe sts [rsName]          # Get info
+kubectl delete -f [definition.yaml]           # Delete a StatefulSet
+kubectl delete sts [rsName] # delete but with name
+```
+
+### Job
+
+Workload for short lived tasks. Creates one or more pods. This is done by creating one pod after another, but we can add parallelism to create them at the same time 
+
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pi
+spec:
+  activateDeadlineSeconds: 30
+  parallelism: 3
+  completions: 3
+  template:
+    spec:
+      containers:
+      - name: pi
+        image: perl
+        command: ["perl", "-Mbignum=bpi" , "-wle", "print bpi(2000)"]
+      restartPolicy: Never
+  ```
+
+```bash
+kubectl create job [jobName] --image=busybox
+kubectl apply -f [definition.yaml]          # Create a Job
+kubectl get job        # List job
+kubectl describe job [rsName]          # Get info
+kubectl delete -f [definition.yaml]           # Delete a job
+kubectl delete job [rsName] # delete but with name
+```
+
+#### CronJob
+
+It is an extension of the Job, executing them in a cron-like fashion using UTC
+
+![alt text](image.png)
+
+```yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hello-cron
+spec:
+  schedule: "* * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: busybox
+            image: busybox
+            command: ["echo", "Hello from the Job"]
+          restartPolicy: Never
+  ```
+
+  
+```bash
+kubectl create cronjob [jobName] --image=busybox --schedule="*/1 * * * *" -- bin/sh -c "date;"
+kubectl apply -f [definition.yaml]          # Create a CronJob
+kubectl get cj        # List Cronjob
+kubectl describe cj [rsName]          # Get info
+kubectl delete -f [definition.yaml]           # Delete a CronJob
+kubectl delete cj [rsName] # delete but with name
+```
+
+## Updates 
+
+In deployments, you can create some strategies to provide scalability and update your pods
+- Replicas -> Number of pods to have up & running at all time
+- revisionHistoryLimit -> Number of previous iterations to keep
+- Strategy
+  - RollingUpdate -> Cycle through updating pods
+  - Recreate -> All existing pods are killed before the new ones get created
+
+### Rolling Updates
+
+We can set the maxSurge parameter, which provides the Maximum number of Pods that can be created over the desired number of pods
+
+On the other side, maxUnavailable provides the max number of pods that can be unavailable during the update process
+
+The commands change a little bit
+```bash
+kubectl apply -f [definition.yaml]          # Update a deployment
+kubectl rollout status        # Get update progress
+kubectl rollout history deployment [rsName]          # get the history of the deployment
+kubectl rollout undo [deploymentname]           # Delete a job
+kubectl rollout undo [deploymentname] --to-revision=[revision#]           # Delete a job
+```
+
+### Blue-Green Deployments
+
+Lets suppose that on a rolling update we have breaking changes, which can introduce problems. In blue green production, we have the blue which is in productions and green of what is deployed but not yet in production. When we want to roll out the changes, we update the service to point to the new pod or version.
+
+Nevertheless, we need to over provision the cluster size to make it possible
