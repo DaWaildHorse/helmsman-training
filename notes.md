@@ -223,7 +223,7 @@ To check logs use the simple command
 ```bash
 kubectl logs [podname] -c [ContainerName]
 ```
-
+For quick reference, use different deployments for lightly coupled architectures. If you need it to be tightly coupled, some patterns are Sidecar(like monitoring the output or refresh or update files continously, extend the service capabilities) or an Ambasador (specalized sidecar to manage external communication)
 
 ## Networking
 
